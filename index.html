@@ -1,0 +1,93 @@
+<?php
+
+namespace App;
+
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class Admin extends Authenticatable
+{
+    use Notifiable;
+	//test git
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $gaurd ='admin';
+    
+    protected $fillable = [
+        'name','surname','sex','address','phone','ecnumber','email', 'password','status'
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /*relationships*/
+
+    public function roles()
+    {
+        return $this->belongsToMany('App\Role','admin_role','admin_id','role_id');
+    }
+
+    public function faculty()
+    {
+        return $this->belongsToMany('App\Faculty','admin_faculty','admin_id','faculty_id');
+    }
+
+   public function department()
+    {
+        return $this->belongsToMany('App\Department','admin_department','admin_id','department_id');
+    }
+    
+    public function audit()
+    {
+        return $this->hasmany('App\audittrail','ecnumber','ecnumber');
+    }
+
+    public function hasanyRoles($roles)
+    {
+        if (is_array($roles)) {
+            foreach ($roles as $role) {
+             if ($this->hasrole($role)) {
+                 return $role;
+             }
+            }
+        }
+        else{
+          if ($this->hasrole($roles)) {
+                 return $roles;
+             }
+        }
+        return'';
+    }
+
+
+
+    public function hasrole($role)
+    {
+        if ($this->roles()->wherename($role)->exists()) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getrole()
+    {
+       return $this->roles()->first();
+    }
+   public function hascourse()
+   {
+    return $this->hasmany('App\course_tutor','ecnumber','ecnumber');
+   }
+  
+
+    
+}
